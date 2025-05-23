@@ -11,10 +11,12 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     port: PORT,
+    allowedHosts: "all", // Allow all hosts (less secure)
   },
   preview: {
     host: "0.0.0.0",
     port: PORT,
+    allowedHosts: "all", // Allow all hosts (less secure)
   },
   build: {
     outDir: "dist",
