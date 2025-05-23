@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import banner from "../../assets/Banner.png";
+import Banner from "../../assets/banner.png";
 import Products from "./Products";
 import { useNavigate } from "react-router-dom";
 
@@ -12,7 +12,7 @@ const Home = () => {
       {/* Banner Section */}
       <section className="w-full mb-10 ">
         <img
-          src={banner}
+          src={Banner}
           alt="Banner"
           className="w-full h-[300px] object-cover  shadow-md"
         />
