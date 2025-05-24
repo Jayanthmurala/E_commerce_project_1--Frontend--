@@ -15,8 +15,7 @@ const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [cartProduct, setCartProduct] = useState([]);
   const [selectedPayment, setSelectedPayment] = useState("cod");
-  const [loadingId, setLoadingId] = useState(null); // Track loading state per item
-  console.log(selectedPayment, "selectedPayment");
+  const [loadingId, setLoadingId] = useState(null);
 
   useEffect(() => {
     setCartItems(shopping_cart);
@@ -37,7 +36,7 @@ const Cart = () => {
           price: product.price,
           image: product.image,
           discount: product.discount,
-          stock: product.stock || 50, // Default to 50 if not available
+          stock: product.stock || 50,
         };
       })
       .filter(Boolean);
@@ -56,7 +55,6 @@ const Cart = () => {
     );
   };
 
-  // Remove Quantity
   const removeHandler = async (id) => {
     setLoadingId(id);
     try {
@@ -85,7 +83,6 @@ const Cart = () => {
     }
   };
 
-  // Add Quantity
   const addHandler = async (id) => {
     setLoadingId(id);
     try {
@@ -129,7 +126,6 @@ const Cart = () => {
     }
   };
 
-  //placeOrderHandler
   const placeOrderHandler = async () => {
     if (address_details.length === 0) {
       toast.error("Please add an address");
@@ -139,6 +135,7 @@ const Cart = () => {
       toast.error("Please add a product");
       return;
     }
+
     if (selectedPayment === "cod") {
       try {
         const res = await Axios({
@@ -157,9 +154,11 @@ const Cart = () => {
           clearHandler();
         }
       } catch (error) {
+        toast.error("Order failed");
         console.log(error);
       }
     }
+
     if (selectedPayment === "online") {
       try {
         const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
@@ -169,22 +168,23 @@ const Cart = () => {
           method: "POST",
           data: {
             list_items: cartProduct.map((item) => ({
-              name: item.productId.name,
-              image: item.productId.image,
-              productId: item.productId._id,
-              price: item.productId.price,
+              name: item.name,
+              image: item.image,
+              productId: item.productId,
+              price: item.price,
               quantity: item.quantity,
-              discount: item.productId.discount,
+              discount: item.discount,
             })),
             totalAmt: calculateTotal(),
             addressId: address_details[0]._id,
             subTotalAmt: 100,
           },
         });
-        const { data: responseData } = res;
 
+        const { data: responseData } = res;
         stripePromise.redirectToCheckout({ sessionId: responseData.id });
       } catch (error) {
+        toast.error("Online payment failed");
         console.log(error);
       }
     }
@@ -224,7 +224,7 @@ const Cart = () => {
       {/* RIGHT: Cart */}
       <div className="col-span-2 bg-white p-4 rounded-lg shadow-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold mb-4">Your Cart</h2>
+          <h2 className="text-xl font-bold">Your Cart</h2>
           <button
             onClick={clearHandler}
             className="text-red-500 hover:bg-red-600 hover:text-white border border-red-500 hover:border-red-700 px-4 py-2 rounded cursor-pointer"
@@ -249,7 +249,6 @@ const Cart = () => {
                 />
                 <div>
                   <h3 className="font-semibold text-gray-800">{item.name}</h3>
-
                   {item.discount > 0 ? (
                     <div className="flex items-center gap-2">
                       <p className="text-gray-500 line-through">
@@ -268,7 +267,6 @@ const Cart = () => {
                   ) : (
                     <p className="text-gray-800 font-bold">₹{item.price}</p>
                   )}
-
                   {item.stock < 20 && (
                     <p className="text-red-500 text-sm">
                       Hurry! Only {item.stock} left
@@ -276,7 +274,6 @@ const Cart = () => {
                   )}
                 </div>
               </div>
-
               <div className="flex items-center gap-2">
                 <button
                   className="bg-gray-200 p-1 rounded cursor-pointer"
@@ -332,17 +329,10 @@ const Cart = () => {
             <h2 className="text-xl font-semibold">
               Sub Total: ₹{calculateTotal()}
             </h2>
-            <h3 className="text-xl font-bold">
-              Grand Total: ₹
-              {calculateTotal() === 0 ? 0 : calculateTotal() + 100}
-            </h3>
-            <p className="text-sm text-gray-500">
-              Shipping and taxes calculated at checkout ₹100
-            </p>
           </div>
           <button
             onClick={placeOrderHandler}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+            className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700"
           >
             Place Order
           </button>
