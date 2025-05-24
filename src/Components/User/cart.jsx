@@ -4,7 +4,7 @@ import { FaMinus, FaPlus } from "react-icons/fa";
 import endPoints from "../../Api/endPoints";
 import Axios from "../../Api";
 import toast from "react-hot-toast";
-import { loadStripe } from "stripe";
+import { loadStripe } from "@stripe/stripe-js";
 
 const Cart = () => {
   const { products } = useSelector((state) => state.data);
