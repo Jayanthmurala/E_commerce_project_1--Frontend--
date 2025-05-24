@@ -18,6 +18,8 @@ import Profile from "../Components/User/Profile";
 import SubCategory from "../Components/SubCategory";
 import Search from "../Components/User/Search";
 import ProtectedRoute from "../util/ProtectedRoute";
+import Cancel from "../Components/User/Cancel";
+import Success from "../Components/User/Success";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +28,8 @@ const router = createBrowserRouter([
     children: [
       { path: "", element: <Home /> },
       { path: "search", element: <Search /> },
+      { path: "success", element: <Success /> },
+      { path: "cancel", element: <Cancel /> },
       {
         path: "auth",
         element: <Auth />,

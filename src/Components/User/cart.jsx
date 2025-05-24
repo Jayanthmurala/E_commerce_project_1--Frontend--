@@ -4,6 +4,7 @@ import { FaMinus, FaPlus } from "react-icons/fa";
 import endPoints from "../../Api/endPoints";
 import Axios from "../../Api";
 import toast from "react-hot-toast";
+import { loadStripe } from "stripe";
 
 const Cart = () => {
   const { products } = useSelector((state) => state.data);
@@ -130,24 +131,62 @@ const Cart = () => {
 
   //placeOrderHandler
   const placeOrderHandler = async () => {
-    try {
-      const res = await Axios({
-        url: "/aip/v1/order/create",
-        method: "POST",
-        data: {
-          addressId: address_details[0]._id,
-          subTotalAmt: 100,
-          totalAmt: calculateTotal() + 100,
-          productIds: cartProduct.map((item) => item.productId),
-        },
-      });
+    if (address_details.length === 0) {
+      toast.error("Please add an address");
+      return;
+    }
+    if (cartProduct.length === 0) {
+      toast.error("Please add a product");
+      return;
+    }
+    if (selectedPayment === "cod") {
+      try {
+        const res = await Axios({
+          url: "/aip/v1/order/create",
+          method: "POST",
+          data: {
+            addressId: address_details[0]._id,
+            subTotalAmt: 100,
+            totalAmt: calculateTotal() + 100,
+            productIds: cartProduct.map((item) => item.productId),
+          },
+        });
 
-      if (res.status === 200) {
-        toast.success("Order placed successfully");
-        clearHandler();
+        if (res.status === 200) {
+          toast.success("Order placed successfully");
+          clearHandler();
+        }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
+    }
+    if (selectedPayment === "online") {
+      try {
+        const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+        const stripePromise = await loadStripe(stripePublicKey);
+        const res = await Axios({
+          url: "/aip/v1/order/online",
+          method: "POST",
+          data: {
+            list_items: cartProduct.map((item) => ({
+              name: item.productId.name,
+              image: item.productId.image,
+              productId: item.productId._id,
+              price: item.productId.price,
+              quantity: item.quantity,
+              discount: item.productId.discount,
+            })),
+            totalAmt: calculateTotal(),
+            addressId: address_details[0]._id,
+            subTotalAmt: 100,
+          },
+        });
+        const { data: responseData } = res;
+
+        stripePromise.redirectToCheckout({ sessionId: responseData.id });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
