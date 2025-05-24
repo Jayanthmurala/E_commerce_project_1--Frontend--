@@ -10,7 +10,7 @@ const Success = () => {
               Order Placed Successfully
             </h1>
             <p className="lg:w-2/3 mx-auto leading-relaxed text-base">
-              Your Order has been placed successfully
+              Your Order has been placed success
             </p>
           </div>
         </div>
